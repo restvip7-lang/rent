@@ -1,5 +1,6 @@
 {
   "functions": {
-    "server.mjs": { "includeFiles": "public/**" }
-  }
+    "server.mjs": { "includeFiles": "public/**", "maxDuration": 60 }
+  },
+  "crons": [{ "path": "/api/cron/drain", "schedule": "0 6 * * *" }]
 }

@@ -1,5 +1,5 @@
 import { randomUUID } from 'node:crypto';
-import { existsSync, readFileSync, writeFileSync, renameSync } from 'node:fs';
+import { existsSync, readFileSync, writeFileSync, renameSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 
 export const placeKinds = {
@@ -85,7 +85,8 @@ export function createAssistant({ getStore, save, dataDir, fetchImpl = fetch, ge
   function remember(key, value, ttl) {
     cache[key] = { value, expires: Date.now() + ttl };
     const keep = Object.entries(cache).filter(([, v]) => v.expires > Date.now()).slice(-150); cache = Object.fromEntries(keep);
-    writeFileSync(cachePath + '.tmp', JSON.stringify(cache)); renameSync(cachePath + '.tmp', cachePath);
+    // Best effort only: the cache is an optimisation, losing it (read-only or ephemeral disk) must never fail a request.
+    try { mkdirSync(dataDir, { recursive: true }); writeFileSync(cachePath + '.tmp', JSON.stringify(cache)); renameSync(cachePath + '.tmp', cachePath); } catch {}
   }
   async function remoteJson(url, options = {}) {
     const run = queue.then(async () => {
