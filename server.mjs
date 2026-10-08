@@ -67,7 +67,7 @@ function validate(collection, input, previous) {
   const fields = {
     apartments: ['name', 'complexId', 'managerId', 'hostId', 'wifiName', 'wifiPassword', 'checkout', 'instructions'],
     complexes: ['name', 'district', 'address', 'addressTaxi', 'rules', 'facilities'],
-    contacts: ['name', 'role', 'phone', 'whatsapp', 'note'],
+    contacts: ['name', 'role', 'phone', 'whatsapp', 'telegram', 'note'],
     places: ['name', 'complexId', 'category', 'description', 'detail'],
     stays: ['name', 'apartmentId', 'managerId', 'arrival', 'departure'],
     banner: ['title', 'text', 'button']
@@ -163,7 +163,7 @@ export async function deliverLead(lead, options = {}) {
   if (!botToken || !chatId) { lead.telegramStatus = 'not_configured'; await persistLead(lead); return; }
   if (!options.claimed) { delete lead.retryAt; lead.telegramStatus = 'sending'; lead.claimedAt = Date.now(); lead.attempts = (lead.attempts || 0) + 1; }
   try {
-    const text = [...(lead.isDemo ? ['🧪 ДЕМО · пример заявки для презентации'] : []), lead.type === 'service' ? '🏠 Обращение гостя' : '🏡 Заявка на подбор квартиры', `ID: ${lead.id}`, `Имя: ${lead.name}`, `Контакт: ${lead.contact}`, `Квартира: ${lead.apartmentName}`, `Комплекс: ${lead.complexName}`, `Район: ${lead.district}`, `Менеджер: ${lead.managerName || 'Не назначен'}`, `Цель: ${lead.goal || '—'}`, `Бюджет: ${lead.budget || 'Не указан'}`, `Сообщение: ${lead.message || '—'}`, `Источник: ${lead.source}`, `Дата: ${lead.createdAt}`, `Согласие: ${lead.isDemo ? 'демонстрационные данные' : lead.consent ? 'да' : 'нет'}`].join('\n').slice(0, 4000);
+    const text = [...(lead.isDemo ? ['🧪 ДЕМО · пример заявки для презентации'] : []), lead.type === 'service' ? '🏠 Обращение гостя' : '🏡 Заявка на подбор квартиры', ...(lead.type === 'service' ? [] : [`ID: ${lead.id}`]), `Имя: ${lead.name}`, `Контакт: ${lead.contact}`, `Квартира: ${lead.apartmentName}`, `Комплекс: ${lead.complexName}`, `Район: ${lead.district}`, `Менеджер: ${lead.managerName || 'Не назначен'}`, ...(lead.type === 'service' ? [] : [`Цель: ${lead.goal || '—'}`, `Бюджет: ${lead.budget || 'Не указан'}`]), `Сообщение: ${lead.message || '—'}`, `Источник: ${lead.source}`, `Дата: ${lead.createdAt}`, ...(lead.type === 'service' ? [] : [`Согласие: ${lead.isDemo ? 'демонстрационные данные' : lead.consent ? 'да' : 'нет'}`])].join('\n').slice(0, 4000);
     const response = await (options.fetch || fetch)(`https://api.telegram.org/bot${botToken}/sendMessage`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ chat_id: chatId, text, disable_web_page_preview: true }), signal: AbortSignal.timeout(10000) });
     const result = await response.json();
     if (!response.ok || !result.ok) { lead.retryAt = Date.now() + Math.max(60, Number(result.parameters?.retry_after) || 0) * 1000; throw new Error('delivery'); }

@@ -87,6 +87,11 @@ test('guest → durable lead → protected admin; CRUD, stable QR and Telegram o
       await deliverLead(lead,{token:'test-token',chat:'test-chat',fetch:fakeFetch});assert.equal(lead.telegramStatus,'sent');assert.equal(lead.telegramMessageId,42);
       await deliverLead(lead,{token:'test-token',chat:'test-chat',fetch:fakeFetch});assert.equal(requests,1);
       const demo={...lead,isDemo:true,telegramStatus:'pending'};await deliverLead(demo,{token:'test-token',chat:'test-chat',fetch:async(url,opts)=>{assert.match(JSON.parse(opts.body).text,/ДЕМО/);assert.match(JSON.parse(opts.body).text,/Согласие: демонстрационные данные/);return fakeFetch(url,opts);}});assert.equal(requests,2);assert.equal(demo.telegramStatus,'sent');
+      for (const isDemo of [false,true]) {
+        const service={...lead,type:'service',isDemo,telegramStatus:'pending',message:'Help with Wi-Fi'};
+        await deliverLead(service,{token:'test-token',chat:'test-chat',fetch:async(url,opts)=>{const text=JSON.parse(opts.body).text;assert.match(text,/Обращение гостя/);assert.match(text,/Help with Wi-Fi/);assert.match(text,/Контакт:/);assert.doesNotMatch(text,/^(ID|Цель|Бюджет|Согласие):/m);return {ok:true,json:async()=>({ok:true,result:{message_id:43}})};}});
+        assert.equal(service.telegramStatus,'sent');
+      }
       const failed={...lead,telegramStatus:'pending',retryAt:1};await deliverLead(failed,{token:'test-token',chat:'test-chat',fetch:async()=>{throw Error('network');}});assert.equal(failed.telegramStatus,'failed');assert.ok(failed.retryAt>Date.now());assert.ok(failed.telegramError);assert.ok(!failed.telegramError.includes('test-token'));
     });
     await t.test('assistant is protected; templates persist and new apartments inherit them',async()=>{
