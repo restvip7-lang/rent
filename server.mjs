@@ -221,3 +221,4 @@ if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
   setInterval(() => { void drain(); const now = Date.now(); for (const [key, value] of limits) if (value.until < now) limits.delete(key); for (const [key, value] of sessions) if (value.expires < now) sessions.delete(key); }, 30000).unref();
 }
 export { server };
+export default server;
