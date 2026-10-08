@@ -1,0 +1,16 @@
+{
+  "name": "stay-property-guest-demo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "node server.mjs",
+    "start": "node server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node --check assistant-service.mjs && node --check public/assistant.js && node --check server.mjs && node --check seed.mjs && node --check public/app.js && node --check public/admin.js && node --check public/ui.js"
+  },
+  "dependencies": {
+    "ai": "^7.0.130",
+    "qrcode": "^1.5.4"
+  }
+}
