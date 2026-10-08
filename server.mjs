@@ -13,7 +13,7 @@ const host = process.env.HOST || '127.0.0.1';
 const port = Number(process.env.PORT || 3000);
 const local = ['127.0.0.1', 'localhost', '::1'].includes(host);
 if (!local && (!process.env.ADMIN_PASSWORD || process.env.ADMIN_PASSWORD === 'StayDemo2026!')) throw new Error('Set a unique ADMIN_PASSWORD before listening outside localhost.');
-const baseUrl = (process.env.PUBLIC_BASE_URL || `http://localhost:${port}`).replace(/\/$/, '');
+const baseUrl = (process.env.PUBLIC_BASE_URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : `http://localhost:${port}`)).replace(/\/$/, '');
 const dataDir = resolve(process.env.DATA_DIR || resolve(root, 'data'));
 mkdirSync(dataDir, { recursive: true });
 const dataPath = resolve(dataDir, 'store.json');
@@ -216,7 +216,7 @@ const server = http.createServer(async (req, res) => {
     res.writeHead(200, { 'Content-Type': mime[extname(full)] || 'application/octet-stream', 'Cache-Control': 'no-cache' }); res.end(req.method === 'HEAD' ? undefined : readFileSync(full));
   } catch (error) { if (!res.headersSent) json(res, { error: error.status ? error.message : 'Ошибка сервера. Попробуйте ещё раз.' }, error.status || 500); else res.end(); }
 });
-if (process.env.NODE_ENV !== 'test') {
+if (process.env.NODE_ENV !== 'test' && !process.env.VERCEL) {
   server.listen(port, host, () => { console.log(`Stay Property demo: http://localhost:${port}\nAdmin: http://localhost:${port}/admin\nTelegram: ${telegramEnabled ? 'configured' : 'not configured — leads are saved locally'}`); void drain(); });
   setInterval(() => { void drain(); const now = Date.now(); for (const [key, value] of limits) if (value.until < now) limits.delete(key); for (const [key, value] of sessions) if (value.expires < now) sessions.delete(key); }, 30000).unref();
 }
