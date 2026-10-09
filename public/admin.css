@@ -4,3 +4,6 @@
 .assistant-block{margin:24px 0}.assistant-selector{display:grid;gap:8px;max-width:520px}.assistant-places{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:16px;margin:24px 0}.assistant-place{border:1px solid var(--border,#e5dfd8);border-radius:16px;padding:20px;min-width:0}.assistant-place label{display:grid;gap:6px;margin-bottom:10px}.assistant-place .check-label{display:flex}.assistant-place input:not([type=checkbox]){width:100%;min-width:0}.location-choice{margin:10px 10px 10px 0;white-space:normal;text-align:left}.assistant-block h2{margin-bottom:16px}.assistant-block form+form{margin-top:20px}
 
 .assistant-block a{color:var(--orange-dark);text-decoration:underline}.assistant-place{align-content:start}.assistant-selector select{width:100%}.assistant-block #chosen-location{font-size:12px}.assistant-block #nearby-search{margin-top:18px}
+
+.sticker-preview{display:block;width:100%;height:auto;max-width:500px;margin:0 auto}.sticker-modal .print-card{padding:0}.sticker-modal .no-print{font-size:12px}.sticker-modal .qr-actions{flex-wrap:wrap}
+@media print{dialog.sticker-modal{padding:0!important}dialog.sticker-modal .sticker-preview{width:127mm;max-width:none;height:177.8mm;margin:0 auto}dialog.sticker-modal h2{display:none}}
